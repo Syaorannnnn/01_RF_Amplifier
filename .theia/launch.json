@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "01_RF_Amplifier",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "01_RF_Amplifier",
+                "resourceId": "/01_RF_Amplifier/RF_Amplifier.c"
+            }
+        }
+    ]
+}

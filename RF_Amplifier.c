@@ -1,0 +1,123 @@
+/*
+ * Copyright (c) 2021, Texas Instruments Incorporated
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#include "ti_msp_dl_config.h"
+#include "././LCD/HMI_GUI.h"
+#include "././ADC/ADC.h"
+#include "././BTN/BTN.h"
+#include "././ROTARY_ENCODER/ROTARY_ENCODER.h"
+#include "././FREQ_DECODER/FREQ_DECODER.h"
+
+volatile uint8_t uart_data = 0;
+
+int main(void)
+{
+	SYSCFG_DL_init();
+	//  清除串口中断标志
+	NVIC_ClearPendingIRQ(UART_0_INST_INT_IRQN);
+    //  DAC使能
+    DL_DAC12_enable(DAC0);
+
+    /*  中断使能    */
+	//  使能串口中断
+	NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
+    //  使能旋转编码器中断
+    NVIC_EnableIRQ(GPIO_ENCODER_INT_IRQN);
+    //  使能ADC中断
+    NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);
+    //  使能频率解码计中断
+    NVIC_EnableIRQ(GPIO_FREQ_DECODER_INT_IRQN);
+    /*********************/
+    //  DAC输出默认值
+	DAC_OUTPUT0();
+
+	while (1)
+	{
+        BTN_act();
+        data_samplepoints_conversion();
+        show_scope();
+	}
+}
+
+// 串口的中断请求处理
+void UART_0_INST_IRQHandler(void)
+{
+	// 如果产生了串口中断
+	switch (DL_UART_Main_getPendingInterrupt(UART_0_INST))
+	{
+	case DL_UART_MAIN_IIDX_RX: // 如果是接收中断
+		// 接发送过来的数据保存在变量中
+		uart_data = DL_UART_Main_receiveData(UART_0_INST);
+		// 将保存的数据再发送出去
+		writeRingBuff(uart_data);
+
+		break;
+
+	default: // 其他的串口中断
+		break;
+	}
+}
+//  ADC中断请求处理
+void ADC12_0_INST_IRQHandler(void)
+{
+    switch (DL_ADC12_getPendingInterrupt(ADC12_0_INST)) 
+    {
+        case DL_ADC12_IIDX_MEM1_RESULT_LOADED:
+			DL_GPIO_togglePins(GPIO_LEDS_PORT, GPIO_LEDS_G_PIN);
+			sendString("ADC Interrupt\r\n");
+            gCheckADC = true;
+            break;
+        default:
+            break;
+    }
+}
+// GPIO中断请求处理
+void GROUP1_IRQHandler(void)    //Group1的中断触发
+{
+
+    switch (DL_Interrupt_getPendingGroup(DL_INTERRUPT_GROUP_1)) 
+    {
+        case GPIO_ENCODER_INT_IIDX :
+            get_rotate_dir();
+            cursor_move(AMPLITUDE,rotate_dir);
+            cursor_move(PHASE,rotate_dir);
+            cursor_value(AMPLITUDE);
+            cursor_value(PHASE);
+            break;
+        case GPIO_FREQ_DECODER_INT_IIDX :
+            DL_GPIO_togglePins(GPIO_LEDS_PORT, GPIO_LEDS_R_PIN);
+            freq_fetch();
+
+        default:  break;
+    }
+    DL_GPIO_clearInterruptStatus(GPIO_FREQ_DECODER_PORT, GPIO_FREQ_DECODER_E_PIN);
+}
