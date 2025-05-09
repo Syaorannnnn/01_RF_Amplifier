@@ -1,9 +1,12 @@
+/*
+
+*/
 #ifndef __BTN_H__
 #define __BTN_H__
 
 #include <stdint.h>
 #include "ti_msp_dl_config.h"
-#include "../DAC/DAC.h"
+#include "./DAC/DAC.h"
 
 #define BTN_LEFT_PRESS  (DL_GPIO_readPins(GPIO_BTN_PORT, GPIO_BTN_LEFT_PIN) == 0)
 #define BTN_DOWN_PRESS  (DL_GPIO_readPins(GPIO_BTN_PORT, GPIO_BTN_DOWN_PIN) == 0)
@@ -13,7 +16,7 @@
 
 #define BTN_DEBOUNCE_TIME 20 // ??????(ms)
 
-typedef struct BTNData_t {
+typedef struct BTNData {
     uint8_t left;
     uint8_t down;
     uint8_t right;
@@ -21,7 +24,7 @@ typedef struct BTNData_t {
     uint8_t mid;
 } BTNData_t;
 
-typedef struct BTNTick_t {
+typedef struct BTNTick {
     uint16_t left;
     uint16_t down;
     uint16_t right;

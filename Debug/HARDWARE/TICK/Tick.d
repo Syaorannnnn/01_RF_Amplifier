@@ -75,8 +75,9 @@ HARDWARE/TICK/Tick.o: ../HARDWARE/TICK/Tick.c ../HARDWARE/TICK/Tick.h \
  E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_wwdt.h \
  E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_interrupt.h \
  E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h \
- ../HARDWARE/BTN/BTN.h ../HARDWARE/DAC/DAC.h \
- ../HARDWARE/LCD/tjc_usart_hmi.h
+ ../HARDWARE/BTN/BTN.h \
+ E:/ti/workspace/01_RF_Amplifier/HARDWARE/DAC/DAC.h \
+ E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/tjc_usart_hmi.h
 ../HARDWARE/TICK/Tick.h:
 ti_msp_dl_config.h:
 E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/devices/msp/msp.h:
@@ -153,5 +154,5 @@ E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_wwdt.h:
 E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_interrupt.h:
 E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h:
 ../HARDWARE/BTN/BTN.h:
-../HARDWARE/DAC/DAC.h:
-../HARDWARE/LCD/tjc_usart_hmi.h:
+E:/ti/workspace/01_RF_Amplifier/HARDWARE/DAC/DAC.h:
+E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/tjc_usart_hmi.h:

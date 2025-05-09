@@ -9,7 +9,7 @@
 #include "ti_msp_dl_config.h"
 #include "stdio.h"
 
-#define SAMPLE_SIZE	 210		//1-43MHz，每隔0.2MHz采样一次
+#define SAMPLE_SIZE	 84		//1-43MHz，每隔0.5MHz采样一次
 #define RX_BUFFER_SIZE	30	    //串口接收缓冲区大小
 
 #define E     DL_GPIO_readPins(GPIO_FREQ_DECODER_PORT, GPIO_FREQ_DECODER_E_PIN)

@@ -48,16 +48,16 @@ void BTN_act(void)
 {
     BTN_getData(&BTNData);
     if(BTNData.left)
-	{
+    {
         DL_GPIO_togglePins(GPIO_LEDS_PORT, GPIO_LEDS_LED_PIN);
         count += 1;
         DAC_OUTPUT();
     }
-	if(BTNData.right)
-	{
+    if(BTNData.right)
+    {
         DL_GPIO_togglePins(GPIO_LEDS_PORT, GPIO_LEDS_LED_PIN);
         count -= 1;
-		if(count < 0) count = 0;
+        if(count < 0) count = 0;
         DAC_OUTPUT();				
-	}				
+    }	
 }

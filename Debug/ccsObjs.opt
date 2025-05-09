@@ -6,9 +6,11 @@
 "./HARDWARE/DAC/DAC.o"
 "./HARDWARE/FREQ_DECODER/FREQ_DECODER.o"
 "./HARDWARE/LCD/HMI_GUI.o"
+"./HARDWARE/LCD/PAGE_HANDLE.o"
 "./HARDWARE/LCD/tjc_usart_hmi.o"
 "./HARDWARE/ROTARY_ENCODER/ROTARY_ENCODER.o"
 "./HARDWARE/TICK/Tick.o"
+"./HARDWARE/UART/UART.o"
 -l"./device_linker.cmd"
 -ldevice.cmd.genlibs
 -llibc.a

@@ -19,10 +19,10 @@ volatile uint8_t decode_done = 0;
 
 
 uint16_t freq2index(float freq) {
-		if(freq < 1.0 || freq > 45.0) {
+		if(freq < 1.0 || freq >= 43.0) {
 			return 0;
 		}
-		uint16_t temp = (freq - 1.0) / 0.2f;
+		uint16_t temp = (freq - 1.0) / 0.5f;
 		return temp;
 }
 
@@ -38,37 +38,6 @@ float getFreq() {
 		return findFloat(LCD_Data_p);
 }
 
-void sendNum(float freq) {
-		uint16_t sendData_1 = freq;     //整数部分
-		uint16_t sendData_2 = (freq - sendData_1) * 10; //一位小数
-		
-		sendData((sendData_1 / 1000) + 48);     //千位
-		sendData((sendData_1 / 100 % 10) + 48); //百位
-		sendData((sendData_1 / 10 % 10) + 48);  //十位
-		sendData((sendData_1 % 10) + 48);       //个位
-		sendData(46);
-		sendData((sendData_2) + 48);            //一位小数
-		sendData(13); sendData(10);       // \r\n
-}
-
-void sendString(char* p) {
-    while(*p != '\0') 
-    {
-        sendData(*p);
-        p++;
-    }
-}
-
-/**
- * @brief 向UART_1发送信息
-          UART_1 : USB-C口
- * 
- * @param data 
- */
-void sendData(uint8_t data) {
-		while(DL_UART_isBusy(UART_1_INST)){};
-		DL_UART_Main_transmitData(UART_1_INST, data);
-}
 float findFloat(unsigned char* str) {
     double num = 0;
     int divisor = 1;
@@ -133,7 +102,7 @@ void freq_fetch(void)
             if(LCD_Byte == 128)
             {
                 stage = 2;
-                sendString("LCD Start\r\n");
+                //sendString("LCD Start\r\n");
             }
             else
             {
@@ -176,7 +145,7 @@ void freq_fetch(void)
                 *LCD_Data_p = '\0';
                 LCD_Data_p = LCD_Data;
                 decode_done = 1;
-                sendString("LCD Done\r\n");
+                //sendString("LCD Done\r\n");
             }
             else
             {

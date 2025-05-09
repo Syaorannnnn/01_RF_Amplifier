@@ -75,6 +75,8 @@ RF_Amplifier.o: ../RF_Amplifier.c \
  E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_wwdt.h \
  E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_interrupt.h \
  E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h \
+ E:/ti/workspace/01_RF_Amplifier/HARDWARE/ADC/ADC.h \
+ E:/ti/workspace/01_RF_Amplifier/HARDWARE/FREQ_DECODER/FREQ_DECODER.h \
  E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/HMI_GUI.h \
  E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/tjc_usart_hmi.h \
  E:/ti/workspace/01_RF_Amplifier/HARDWARE/TICK/Tick.h \
@@ -82,12 +84,10 @@ RF_Amplifier.o: ../RF_Amplifier.c \
  E:/ti/workspace/01_RF_Amplifier/HARDWARE/DAC/DAC.h \
  E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/tjc_usart_hmi.h \
  E:/ti/workspace/01_RF_Amplifier/HARDWARE/FREQ_DECODER/FREQ_DECODER.h \
- E:/ti/workspace/01_RF_Amplifier/HARDWARE/ADC/ADC.h \
- E:/ti/workspace/01_RF_Amplifier/HARDWARE/FREQ_DECODER/FREQ_DECODER.h \
- E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/HMI_GUI.h \
- E:/ti/workspace/01_RF_Amplifier/HARDWARE/BTN/BTN.h \
+ E:/ti/workspace/01_RF_Amplifier/HARDWARE/UART/UART.h \
  E:/ti/workspace/01_RF_Amplifier/HARDWARE/ROTARY_ENCODER/ROTARY_ENCODER.h \
- E:/ti/workspace/01_RF_Amplifier/HARDWARE/FREQ_DECODER/FREQ_DECODER.h
+ E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/PAGE_HANDLE.h \
+ E:/ti/workspace/01_RF_Amplifier/HARDWARE/BTN/BTN.h
 ti_msp_dl_config.h:
 E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/devices/msp/msp.h:
 E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/devices/DeviceFamily.h:
@@ -162,6 +162,8 @@ E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_vref.h:
 E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_wwdt.h:
 E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_interrupt.h:
 E:/ti/SDK/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h:
+E:/ti/workspace/01_RF_Amplifier/HARDWARE/ADC/ADC.h:
+E:/ti/workspace/01_RF_Amplifier/HARDWARE/FREQ_DECODER/FREQ_DECODER.h:
 E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/HMI_GUI.h:
 E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/tjc_usart_hmi.h:
 E:/ti/workspace/01_RF_Amplifier/HARDWARE/TICK/Tick.h:
@@ -169,9 +171,7 @@ E:/ti/workspace/01_RF_Amplifier/HARDWARE/BTN/BTN.h:
 E:/ti/workspace/01_RF_Amplifier/HARDWARE/DAC/DAC.h:
 E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/tjc_usart_hmi.h:
 E:/ti/workspace/01_RF_Amplifier/HARDWARE/FREQ_DECODER/FREQ_DECODER.h:
-E:/ti/workspace/01_RF_Amplifier/HARDWARE/ADC/ADC.h:
-E:/ti/workspace/01_RF_Amplifier/HARDWARE/FREQ_DECODER/FREQ_DECODER.h:
-E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/HMI_GUI.h:
-E:/ti/workspace/01_RF_Amplifier/HARDWARE/BTN/BTN.h:
+E:/ti/workspace/01_RF_Amplifier/HARDWARE/UART/UART.h:
 E:/ti/workspace/01_RF_Amplifier/HARDWARE/ROTARY_ENCODER/ROTARY_ENCODER.h:
-E:/ti/workspace/01_RF_Amplifier/HARDWARE/FREQ_DECODER/FREQ_DECODER.h:
+E:/ti/workspace/01_RF_Amplifier/HARDWARE/LCD/PAGE_HANDLE.h:
+E:/ti/workspace/01_RF_Amplifier/HARDWARE/BTN/BTN.h:

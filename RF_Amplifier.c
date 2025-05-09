@@ -31,13 +31,15 @@
  */
 
 #include "ti_msp_dl_config.h"
-#include "././LCD/HMI_GUI.h"
-#include "././ADC/ADC.h"
-#include "././BTN/BTN.h"
-#include "././ROTARY_ENCODER/ROTARY_ENCODER.h"
-#include "././FREQ_DECODER/FREQ_DECODER.h"
+#include "./ADC/ADC.h"
+#include "./ROTARY_ENCODER/ROTARY_ENCODER.h"
+#include "./FREQ_DECODER/FREQ_DECODER.h"
+#include "./UART/UART.h"
+#include "./LCD/PAGE_HANDLE.h"
 
-volatile uint8_t uart_data = 0;
+volatile uint8_t freq_count = 1;    //采样两个频率点再进入ADC采样，避免频率变化过快让lcd卡死
+volatile uint16_t sample_count = 0; //总有效采样点，超过SAMPLE_SIZE则停止采样
+volatile uint8_t sample_end = 0;
 
 int main(void)
 {
@@ -60,64 +62,37 @@ int main(void)
     //  DAC输出默认值
 	DAC_OUTPUT0();
 
+    //Point_init();
+
 	while (1)
 	{
-        BTN_act();
-        data_samplepoints_conversion();
-        show_scope();
+        if(!sample_end) 
+        {
+            data_samplepoints_conversion();
+        }
+
+        Page_Handler();
 	}
 }
 
-// 串口的中断请求处理
-void UART_0_INST_IRQHandler(void)
-{
-	// 如果产生了串口中断
-	switch (DL_UART_Main_getPendingInterrupt(UART_0_INST))
-	{
-	case DL_UART_MAIN_IIDX_RX: // 如果是接收中断
-		// 接发送过来的数据保存在变量中
-		uart_data = DL_UART_Main_receiveData(UART_0_INST);
-		// 将保存的数据再发送出去
-		writeRingBuff(uart_data);
-
-		break;
-
-	default: // 其他的串口中断
-		break;
-	}
-}
-//  ADC中断请求处理
-void ADC12_0_INST_IRQHandler(void)
-{
-    switch (DL_ADC12_getPendingInterrupt(ADC12_0_INST)) 
-    {
-        case DL_ADC12_IIDX_MEM1_RESULT_LOADED:
-			DL_GPIO_togglePins(GPIO_LEDS_PORT, GPIO_LEDS_G_PIN);
-			sendString("ADC Interrupt\r\n");
-            gCheckADC = true;
-            break;
-        default:
-            break;
-    }
-}
 // GPIO中断请求处理
 void GROUP1_IRQHandler(void)    //Group1的中断触发
 {
-
     switch (DL_Interrupt_getPendingGroup(DL_INTERRUPT_GROUP_1)) 
     {
-        case GPIO_ENCODER_INT_IIDX :
+        case GPIO_ENCODER_INT_IIDX : 
             get_rotate_dir();
-            cursor_move(AMPLITUDE,rotate_dir);
-            cursor_move(PHASE,rotate_dir);
-            cursor_value(AMPLITUDE);
-            cursor_value(PHASE);
+            //Page_Handler();
+
+            DL_GPIO_clearInterruptStatus(GPIO_ENCODER_PORT, GPIO_ENCODER_A_PIN | GPIO_ENCODER_B_PIN);
             break;
-        case GPIO_FREQ_DECODER_INT_IIDX :
+
+        case GPIO_FREQ_DECODER_INT_IIDX : 
             DL_GPIO_togglePins(GPIO_LEDS_PORT, GPIO_LEDS_R_PIN);
             freq_fetch();
 
-        default:  break;
+            DL_GPIO_clearInterruptStatus(GPIO_FREQ_DECODER_PORT, GPIO_FREQ_DECODER_E_PIN);
+            break;
     }
-    DL_GPIO_clearInterruptStatus(GPIO_FREQ_DECODER_PORT, GPIO_FREQ_DECODER_E_PIN);
+
 }

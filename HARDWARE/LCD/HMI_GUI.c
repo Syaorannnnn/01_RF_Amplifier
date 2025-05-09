@@ -1,7 +1,7 @@
 /**
  * @file HMI_GUI.c
  * @author Aiden
- * @brief 串口屏GUI绘制库
+ * @brief 串口屏GUI绘制
  * @version 0.1
  * @date 2025-04-23
  * 
@@ -11,63 +11,83 @@
 
 #include "HMI_GUI.h"
 
-/*  采样点结构声明  */
-// typedef struct
-// {
-// 	float freq;
-// 	float gain_db;
-// 	float phase_deg;
-// }AmpPoint;
-
-/*  绘图点  */
-typedef struct Point
-{
-    int X;
-    int Y;
-}Point;
-
+extern bool rotate_dir;
 extern volatile AmpPoint SamplePoints[SAMPLE_SIZE];
 extern uint16_t freq_index;
-/*  幅度/相位数据缓冲区 */
-int Amplitude[N];
-int Phase[N];
 
-Point amp_point[N] = {0};
-Point pha_point[N] = {0};
+uint8_t log_scale[9] = {20,15,10,8,5,5,5,4,3};
+/*  幅度/相位数据缓冲区 */
+Point_t amp_point[N + 1] = {0};
+Point_t pha_point[N + 1] = {0};
 
 char str[BUFFER_LEN_MAX];
 uint8_t offset = 0;
-bool receive_completed = false;
 
-void clear_scr(void)
+void Point_init() 
+{
+    for(int i = 0; i <= N; i++) {
+        amp_point[i].X = i * 3 + 50;
+        amp_point[i].Y = AMP_Y_STANDARD + HEIGHT;
+        pha_point[i].X = i * 3 + 500;
+        pha_point[i].Y = PHA_Y_STANDARD + HEIGHT;
+    }
+}
+
+/**
+ * @brief 清屏
+ * 
+ */
+void clr_scr(void)
 {
     sprintf(str,"clr WHITE");
     tjc_send_string(str);
-    //sprintf(str,"fill %d,%d,%d,%d,%d",AMP_X_STANDARD,AMP_Y_STANDARD,WIDTH,HEIGHT,BACKGROUND);
     sprintf(str,"ref p0");
-    tjc_send_string(str);
-    //sprintf(str,"fill %d,%d,%d,%d,%d",PHA_X_STANDARD,PHA_Y_STANDARD,WIDTH,HEIGHT,BACKGROUND);
-    sprintf(str,"ref p1");
-    tjc_send_string(str);
-     
+    tjc_send_string(str);    
 }
 
+/**
+ * @brief 画点
+ * 
+ * @param x 
+ * @param y 
+ * @param color 
+ */
 void draw_dot(int x, int y,int color)
 {
     sprintf(str,"cirs %d,%d,%d,%d",x,y,RADIUS,color);
     tjc_send_string(str);
+    //delay_cycles(1000);
 }
 
+/**
+ * @brief 画线
+ * 
+ * @param x1 
+ * @param y1 
+ * @param x2 
+ * @param y2 
+ * @param color 
+ */
 void draw_line(int x1, int y1, int x2, int y2,int color)
 {
     sprintf(str,"line %d,%d,%d,%d,%d",x1,y1,x2,y2,color);
     tjc_send_string(str);
+    //delay_cycles(1000);
 }
 
+/**
+ * @brief 清除线
+ * 
+ * @param x1 
+ * @param y1 
+ * @param x2 
+ * @param y2 
+ */
 void clr_line(int x1, int y1, int x2, int y2)
 {
     sprintf(str,"line %d,%d,%d,%d,%d",x1,y1,x2,y2,BACKGROUND);
     tjc_send_string(str);
+    delay_cycles(1000);
 }
 
 void cursor_init(void) 
@@ -75,176 +95,148 @@ void cursor_init(void)
     draw_line(AMP_X_STANDARD, AMP_Y_STANDARD, AMP_X_STANDARD, AMP_Y_STANDARD + HEIGHT,YELLOW);
 }
 
-void cursor_move(int select, bool dir)
+/**
+ * @brief 游标移动
+ *  
+ * @param dir 
+ */
+void cursor_move(bool dir)
 {
     if(dir)
     {
-        if(select == AMPLITUDE)
-        {
             //clr_line(AMP_X_STANDARD + offset, AMP_Y_STANDARD, AMP_X_STANDARD + offset, AMP_Y_STANDARD + HEIGHT);
-            offset = (offset + 1) % N;
+            offset = (offset + 1 * SCALE) % (N * SCALE + 50);
             //draw_line(AMP_X_STANDARD + offset, AMP_Y_STANDARD, AMP_X_STANDARD + offset, AMP_Y_STANDARD + HEIGHT,GREEN);
-        }
-        else
-        {
-            //clr_line(PHA_X_STANDARD + offset, PHA_Y_STANDARD, PHA_X_STANDARD + offset, PHA_Y_STANDARD + HEIGHT);
-            offset = (offset + 1) % N;
-            //draw_line(PHA_X_STANDARD + offset, PHA_Y_STANDARD, PHA_X_STANDARD + offset, PHA_Y_STANDARD + HEIGHT,GREEN);
-        }
     }
     else 
     {
-        if(select == AMPLITUDE)
-        {
-            //clr_line(AMP_X_STANDARD + offset, AMP_Y_STANDARD, AMP_X_STANDARD + offset, AMP_Y_STANDARD + HEIGHT);
-            offset--;
+            offset -= 1 * SCALE;
             if(offset < 0)  offset = 0;
-            //draw_line(AMP_X_STANDARD + offset, AMP_Y_STANDARD, AMP_X_STANDARD + offset, AMP_Y_STANDARD + HEIGHT,GREEN);
-        }
-        else 
-        {
-            //clr_line(PHA_X_STANDARD + offset, PHA_Y_STANDARD, PHA_X_STANDARD + offset, PHA_Y_STANDARD + HEIGHT);
-            offset--;
-            if(offset < 0)  offset = 0;
-            //draw_line(PHA_X_STANDARD + offset, PHA_Y_STANDARD, PHA_X_STANDARD + offset, PHA_Y_STANDARD + HEIGHT,GREEN);
-        }
-        
     }
 }
 
-/*  显示游标值  */
+/**
+ * @brief 显示游标值
+ * 
+ * @param select 
+ */
 void cursor_value(int select)
 {
     if(select == AMPLITUDE)
     {
+        //sprintf(str, "amp.txt=\"%.2f\"",SamplePoints[(offset - 50) / 3].gain_db);
         sprintf(str, "amp.txt=\"%.2f\"",SamplePoints[offset].gain_db);
         tjc_send_string(str);   
     }
     else 
     {
+        //sprintf(str, "pha.txt=\"%.2f\"",SamplePoints[(offset - 50) / 3].phase_deg);
         sprintf(str, "pha.txt=\"%.2f\"",SamplePoints[offset].phase_deg);
         tjc_send_string(str);  
     }
      
 }
 
-/*  防止游标被刷新掉  */
-void cursor_present(void)
+/**
+ * @brief 显示游标与其对应的值
+ * 
+ */
+void show_cursor(void)
 {
-    draw_line(AMP_X_STANDARD + offset * DIVISION, AMP_Y_STANDARD, AMP_X_STANDARD + offset * DIVISION, AMP_Y_STANDARD + HEIGHT,GREEN);
-    draw_line(PHA_X_STANDARD + offset * DIVISION, PHA_Y_STANDARD, PHA_X_STANDARD + offset * DIVISION, PHA_Y_STANDARD + HEIGHT,GREEN);
+    draw_line(AMP_X_STANDARD + offset * SCALE, AMP_Y_STANDARD, AMP_X_STANDARD + offset * SCALE, AMP_Y_STANDARD + HEIGHT,GREEN);
+    draw_line(PHA_X_STANDARD + offset * SCALE, PHA_Y_STANDARD, PHA_X_STANDARD + offset * SCALE, PHA_Y_STANDARD + HEIGHT,GREEN);
+
+    cursor_value(AMPLITUDE);
+    cursor_value(PHASE);
 }
 
-/*  
-    即时更新点
-    并连成曲线        
+/**
+ * @brief for循环打印点与线，在ADC完毕时使用
+ * 
+ * @param point 
  */
-void show_curve(int select)
+void show_curve(Point_t *point)
 {
-    switch (select) 
-    {
-        case AMPLITUDE : 
-            draw_dot(amp_point[freq_index].X, amp_point[freq_index].Y,YELLOW); break;
-        case PHASE : 
-            draw_dot(pha_point[freq_index].X, pha_point[freq_index].Y,YELLOW); break;
-            default : break;
+    for(int i = 0; i < N; i++)
+    { 
+        draw_dot(point[freq_index].X, point[freq_index].Y,YELLOW); 
     }
 
-    for(int j = 1; j < N - 2 ; j++)
+    for(int j = 1; j < N ; j++)
     {
-        draw_line(amp_point[j - 1].X, amp_point[j - 1].Y, amp_point[j].X, amp_point[j].Y,YELLOW);
-        draw_line(pha_point[j - 1].X, pha_point[j - 1].Y, pha_point[j].X, pha_point[j].Y,YELLOW);
+        draw_line(point[j - 1].X, point[j - 1].Y, point[j].X, point[j].Y, YELLOW);
     }
-    // int dot_x[N];
-    // int dot_y[N];
-    
-    // if(receive_completed)
-    // {
-    //     if(select == AMPLITUDE)
-    //     {
-    //         for(int i = 0; i < N - 2; i++) 
-    //         {
-    //             dot_x[i] = AMP_X_STANDARD + i * DIVISION;
-    //             //dot_y[i] = 96 - (magnitude[i] * 4096 / 3.3) / 32;
-    //             dot_y[i] = AMP_Y_STANDARD + HEIGHT - Amplitude[i];
-    //             draw_dot(dot_x[i], dot_y[i],YELLOW);
-    //         }
+}
 
-    //         for(int i = 1; i < N - 2; i++) 
-    //         {
-    //             draw_line(dot_x[i-1], dot_y[i-1], dot_x[i], dot_y[i],YELLOW);
-    //         }
-       
-    //     }
-    //     else 
-    //     {
-    //         for(int i = 0; i < N - 2; i++)
-    //         {
-    //             dot_x[i] = PHA_X_STANDARD + i * DIVISION;
-    //             dot_y[i] = PHA_Y_STANDARD + HEIGHT - Phase[i];
-    //             //dot_y[i] = 96 - (magnitude[i] * 4096 / 3.3) / 32;
-    //             //printf("dot_x[%d]: %d, dot_y[%d]: %d \r\n", i, dot_x[i], i, dot_y[i]);
-    //             draw_dot(dot_x[i], dot_y[i],YELLOW);
-    //         }
+/**
+ * @brief 即时打印点,并连成曲线
+ * 
+ * @param point 
+ */
+void instant_show_curve(Point_t *point)
+{ 
+    draw_dot(point[freq_index].X, point[freq_index].Y,YELLOW); 
 
-    //         for(int i = 1; i < N - 2; i++) 
-    //         {
-    //             draw_line(dot_x[i-1], dot_y[i-1], dot_x[i], dot_y[i],YELLOW);
-    //         }
-    //     }
-    // }
+    for(int j = 1; j < N ; j++)
+    {
+        draw_line(point[j - 1].X, point[j - 1].Y, point[j].X, point[j].Y, YELLOW);
+    }
    
 }
 
-/*  示波器显示  */
-void show_scope(void)
+/**
+ * @brief 静态更新图线与游标
+ * 
+ */
+void static_show_scope()
 {
-    show_curve(AMPLITUDE);
-    show_curve(PHASE);
+    clr_scr();
+    //delay_ms(50);
 
-    clear_scr();
-    delay_ms(50);
+    show_curve(amp_point);
+    show_curve(pha_point);
 
-    cursor_present();
+    cursor_move(rotate_dir);
+    cursor_move(rotate_dir);
+    
+    show_cursor(); 
+  
 }
 
-/*  把采样点里的数据映射成(x,y) */
+/**
+ * @brief 示波器动态显示,此时不带游标更新
+ * 
+ */
+void instant_show_scope_without_cursor(void)
+{
+    clr_scr();
+    //delay_ms(50);
+
+    instant_show_curve(amp_point);
+    instant_show_curve(pha_point);
+
+}
+
+/**
+ * @brief 把采样点里的数据映射成(x,y)
+ * 
+ */
 void coordinate_conversion(void)
 {   
-    // /*  开始接收数据，数据缓冲区未满    */
-    // receive_completed = false;
-    // if(!receive_completed)
-    // {
-    //         for(int i = 0; i < N; i++)
-    //         {
-    //             Amplitude[i] = SamplePoints[i].gain_db;
-    //             Phase[i] = SamplePoints[i].phase_deg;
-    //         }
-    //         /*  接收数据完，数据缓冲区满，可以打印    */
-    //         receive_completed = true;          
-    // }
-    amp_point[freq_index].X = pha_point[freq_index].X = freq_index;
-    amp_point[freq_index].Y = AMP_Y_STANDARD + HEIGHT - SamplePoints[freq_index].gain_db;
+    amp_point[freq_index].X = freq_index * 3 + 50;
+    pha_point[freq_index].X = freq_index * 3 + 500;
+    amp_point[freq_index].Y = AMP_Y_STANDARD + HEIGHT - SamplePoints[freq_index].gain_db * 3;
     pha_point[freq_index].Y = PHA_Y_STANDARD + HEIGHT - SamplePoints[freq_index].phase_deg;
     
 }
 
-void test(void)
-{
-    receive_completed = true;
-    //cursor_init();
-    double x = 0.0;
-    for(int i = 0; i < N; i++)
-    {
-        Amplitude[i] = 100 * sin(2 * PI *x) + 100;
-        Phase[i] = x;
-        x++;
-    }
+void plot_dot()
+ {
+    if(freq_index == 0) return;
+    draw_dot(amp_point[freq_index].X, amp_point[freq_index].Y,YELLOW);
+    draw_dot(pha_point[freq_index].X, pha_point[freq_index].Y,YELLOW);
+    draw_line(amp_point[freq_index - 1].X, amp_point[freq_index - 1].Y, amp_point[freq_index].X, amp_point[freq_index].Y, YELLOW);
+    draw_line(pha_point[freq_index - 1].X, pha_point[freq_index - 1].Y, pha_point[freq_index].X, pha_point[freq_index].Y, YELLOW);
 
-    //show_scope(AMPLITUDE);
-    //show_scope(PHASE);
-    clear_scr();
-    delay_ms(50);
-
-    cursor_present();
+    //cursor_present();
 }

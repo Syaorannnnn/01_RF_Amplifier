@@ -59,6 +59,7 @@ void tjc_send_string(char* str)
 		uart0_send_char(0xff);
 		uart0_send_char(0xff);
 		uart0_send_char(0xff);
+		//delay_cycles(1000);
 }
 
 

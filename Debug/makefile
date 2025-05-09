@@ -18,9 +18,11 @@ ORDERED_OBJS += \
 "./HARDWARE/DAC/DAC.o" \
 "./HARDWARE/FREQ_DECODER/FREQ_DECODER.o" \
 "./HARDWARE/LCD/HMI_GUI.o" \
+"./HARDWARE/LCD/PAGE_HANDLE.o" \
 "./HARDWARE/LCD/tjc_usart_hmi.o" \
 "./HARDWARE/ROTARY_ENCODER/ROTARY_ENCODER.o" \
 "./HARDWARE/TICK/Tick.o" \
+"./HARDWARE/UART/UART.o" \
 $(GEN_CMDS__FLAG) \
 -Wl,-ldevice.cmd.genlibs \
 -Wl,-llibc.a \
@@ -40,6 +42,7 @@ RMDIR := RMDIR /S/Q
 -include HARDWARE/LCD/subdir_vars.mk
 -include HARDWARE/ROTARY_ENCODER/subdir_vars.mk
 -include HARDWARE/TICK/subdir_vars.mk
+-include HARDWARE/UART/subdir_vars.mk
 -include subdir_rules.mk
 -include HARDWARE/ADC/subdir_rules.mk
 -include HARDWARE/BTN/subdir_rules.mk
@@ -48,6 +51,7 @@ RMDIR := RMDIR /S/Q
 -include HARDWARE/LCD/subdir_rules.mk
 -include HARDWARE/ROTARY_ENCODER/subdir_rules.mk
 -include HARDWARE/TICK/subdir_rules.mk
+-include HARDWARE/UART/subdir_rules.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -165,8 +169,8 @@ all: $(OBJS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(GEN_MISC_FILES__QUOTED)$(GEN_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "RF_Amplifier.o" "ti_msp_dl_config.o" "startup_mspm0g350x_ticlang.o" "HARDWARE\ADC\ADC.o" "HARDWARE\BTN\BTN.o" "HARDWARE\DAC\DAC.o" "HARDWARE\FREQ_DECODER\FREQ_DECODER.o" "HARDWARE\LCD\HMI_GUI.o" "HARDWARE\LCD\tjc_usart_hmi.o" "HARDWARE\ROTARY_ENCODER\ROTARY_ENCODER.o" "HARDWARE\TICK\Tick.o" 
-	-$(RM) "RF_Amplifier.d" "ti_msp_dl_config.d" "startup_mspm0g350x_ticlang.d" "HARDWARE\ADC\ADC.d" "HARDWARE\BTN\BTN.d" "HARDWARE\DAC\DAC.d" "HARDWARE\FREQ_DECODER\FREQ_DECODER.d" "HARDWARE\LCD\HMI_GUI.d" "HARDWARE\LCD\tjc_usart_hmi.d" "HARDWARE\ROTARY_ENCODER\ROTARY_ENCODER.d" "HARDWARE\TICK\Tick.d" 
+	-$(RM) "RF_Amplifier.o" "ti_msp_dl_config.o" "startup_mspm0g350x_ticlang.o" "HARDWARE\ADC\ADC.o" "HARDWARE\BTN\BTN.o" "HARDWARE\DAC\DAC.o" "HARDWARE\FREQ_DECODER\FREQ_DECODER.o" "HARDWARE\LCD\HMI_GUI.o" "HARDWARE\LCD\PAGE_HANDLE.o" "HARDWARE\LCD\tjc_usart_hmi.o" "HARDWARE\ROTARY_ENCODER\ROTARY_ENCODER.o" "HARDWARE\TICK\Tick.o" "HARDWARE\UART\UART.o" 
+	-$(RM) "RF_Amplifier.d" "ti_msp_dl_config.d" "startup_mspm0g350x_ticlang.d" "HARDWARE\ADC\ADC.d" "HARDWARE\BTN\BTN.d" "HARDWARE\DAC\DAC.d" "HARDWARE\FREQ_DECODER\FREQ_DECODER.d" "HARDWARE\LCD\HMI_GUI.d" "HARDWARE\LCD\PAGE_HANDLE.d" "HARDWARE\LCD\tjc_usart_hmi.d" "HARDWARE\ROTARY_ENCODER\ROTARY_ENCODER.d" "HARDWARE\TICK\Tick.d" "HARDWARE\UART\UART.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

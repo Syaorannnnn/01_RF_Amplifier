@@ -127,6 +127,8 @@ extern "C" {
 #define ADC12_0_ADCMEM_1_REF_VOLTAGE_V                                       3.3
 #define GPIO_ADC12_0_C0_PORT                                               GPIOA
 #define GPIO_ADC12_0_C0_PIN                                       DL_GPIO_PIN_27
+#define GPIO_ADC12_0_C1_PORT                                               GPIOA
+#define GPIO_ADC12_0_C1_PIN                                       DL_GPIO_PIN_26
 
 
 
